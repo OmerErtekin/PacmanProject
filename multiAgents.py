@@ -39,13 +39,13 @@ class ReflexAgent(Agent):
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
         state = gameState.generatePacmanSuccessor(legalMoves[chosenIndex])
-        food = state.getFood()
         pacPos = state.getPacmanPosition()
- 
-        print(type(pacPos))
+        foodPositions = GetFoodPositions(state.getFood())
 
+        if len(foodPositions) > 0:
+            distances = GetFoodDistances(pacPos,foodPositions)
+            print(distances)
 
-        "Add more of your code here if you want to"
 
         return legalMoves[chosenIndex]
 
@@ -74,15 +74,7 @@ class ReflexAgent(Agent):
         "*** YOUR CODE HERE ***"
         return successorGameState.getScore()
 
-    def GetFoodIndexes(self,state):
-        foodIndexList = []
-        for i in range (state.width):
-            for j in range (state.height):
-                if state[i][j] == True:
-                    print(f'Found {i} , {j}')
-                    foodIndexList.append({i,j})
-        print(foodIndexList)
-        return foodIndexList
+
         
 
 def scoreEvaluationFunction(currentGameState):
@@ -184,6 +176,27 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 def betterEvaluationFunction(currentGameState):
     return 1
+
+
+def GetFoodPositions(state):
+    foodIndexList = []
+    for i in range (state.width):
+        for j in range (state.height):
+            if state[i][j] == True:
+                foodIndexList.append((i,j))
+    return foodIndexList
+        
+def GetFoodDistances(pacmanPos,foodPositions):
+    distanceList = []
+    for i in range (len(foodPositions)):
+        distanceList.append( {'Distance' : manhattanDistance(pacmanPos,foodPositions[i]), 'Position' :foodPositions[i]} )
+    distanceList = sorted(distanceList,key = lambda x : x['Distance'])
+    #example output :[ {'Distance': 3, 'Position': (3, 3)}, {'Distance': 5, 'Position': (1, 5)}, {'Distance': 5, 'Position': (2, 6)}, {'Distance': 5, 'Position': (3, 5)},
+    #  {'Distance': 7, 'Position': (1, 7)}, {'Distance': 7, 'Position': (2, 8)}, {'Distance': 7, 'Position': (3, 7)} ]
+
+    return distanceList
+
+
         
 
 # Abbreviation
