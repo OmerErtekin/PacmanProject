@@ -188,12 +188,12 @@ def GetFoodPositions(state):
         
 def GetFoodDistances(pacmanPos,foodPositions):
     distanceList = []
-    for i in range (len(foodPositions)):
-        distanceList.append( {'Distance' : manhattanDistance(pacmanPos,foodPositions[i]), 'Position' :foodPositions[i]} )
-    distanceList = sorted(distanceList,key = lambda x : x['Distance'])
-    #example output :[ {'Distance': 3, 'Position': (3, 3)}, {'Distance': 5, 'Position': (1, 5)}, {'Distance': 5, 'Position': (2, 6)}, {'Distance': 5, 'Position': (3, 5)},
-    #  {'Distance': 7, 'Position': (1, 7)}, {'Distance': 7, 'Position': (2, 8)}, {'Distance': 7, 'Position': (3, 7)} ]
+    for foodPos in foodPositions:
+        distanceList.append( {'Distance' : manhattanDistance(pacmanPos,foodPos), 'FoodPos' : foodPos} )
 
+    distanceList = sorted(distanceList,key = lambda x : x['Distance'])
+    #example output : [ {'Distance': 2, 'FoodPos': (3, 1)}, {'Distance': 4, 'FoodPos': (1, 5)}, {'Distance': 4, 'FoodPos': (3, 3)}, {'Distance': 6, 'FoodPos': (1, 7)}, 
+    # {'Distance': 6, 'FoodPos': (2, 6)}, {'Distance': 6, 'FoodPos': (3, 5)}, {'Distance': 8, 'FoodPos': (2, 8)}, {'Distance': 8, 'FoodPos': (3, 7)} ]
     return distanceList
 
 
