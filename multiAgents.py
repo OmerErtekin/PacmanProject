@@ -152,30 +152,101 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
+    def ExpectimaxValue(self,gameState,agentIndex,nodeDepth):
+        if agentIndex >= gameState.getNumAgents():
+            agentIndex = 0
+            nodeDepth +=1
+        
+        if nodeDepth == self.depth:
+            return self.evaluationFunction(gameState)
+        if agentIndex == self.index:
+            return self.MaxValue(gameState,agentIndex,nodeDepth)
+        else:
+            return self.ExpectedValue(gameState,agentIndex,nodeDepth)
 
 
     def getAction(self, gameState):
-        legalMoves = gameState.getLegalActions()
-        print(legalMoves[0])
-        return 'West'
-        """
-        """
-      
+        return self.ExpectimaxValue(gameState,0,0)
+        
 
-    def evaluationFunction(self, currentGameState, action):
-        successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+    def MaxValue(self,currentGameState,agentIndex,nodeDepth):
+        
+        if currentGameState.isWin() or currentGameState.isLose():
+            return self.evaluationFunction(currentGameState)
+        
+        currentMax = float("-inf")
+        selectedAction = "Stop"
 
-        distanceToFood = manhattanDistance(newPos,newFood)
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        for legalAction in currentGameState.getLegalActions(agentIndex):
+            if legalAction == Directions.STOP:
+                continue
+            
+            successor = currentGameState.generateSuccessor(agentIndex, legalAction)
+            expectimaxValue = self.ExpectimaxValue(successor,agentIndex+1,nodeDepth)
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+            if expectimaxValue > currentMax:
+                currentMax = expectimaxValue
+                selectedAction = legalAction
+            
+        if nodeDepth == 0:
+            return selectedAction
+        else:
+            return currentMax
+            
+                
+
+    def ExpectedValue(self,currentGameState,agentIndex,nodeDepth):
+        if currentGameState.isWin() or currentGameState.isLose():
+            return self.evaluationFunction(currentGameState)
+        
+        expectedValue = 0
+        probabilty = 1.0/len(currentGameState.getLegalActions(agentIndex))
+
+        for legalAction in currentGameState.getLegalActions(agentIndex):
+            if legalAction == Directions.STOP:
+                continue
+        
+        successor = currentGameState.generateSuccessor(agentIndex, legalAction)
+        
+        currentValue = self.ExpectimaxValue(successor,agentIndex+1,nodeDepth)
+
+        expectedValue += currentValue * probabilty
+
+        return expectedValue
+
 
 def betterEvaluationFunction(currentGameState):
-    return 1
+
+    pacmanPos = currentGameState.getPacmanPosition()
+    currentFoodCount = currentGameState.getNumFood()
+    currentGhostStates =  currentGameState.getGhostStates()
+    currentCapsules = currentGameState.getCapsules()
+    currentScore = currentGameState.getScore()
+
+    foodLeft = 1.0/(currentFoodCount + 1.0)
+    ghostDistance = float("-inf")
+    scaredGhost = 0
+
+    for ghostState in currentGhostStates:
+        ghostPos = ghostState.getPosition()
+        if pacmanPos == ghostPos:
+            return ghostDistance
+        else:
+            ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
+
+        if ghostState.scaredTimer != 0:
+            scaredGhost += 1
+    
+    capsuleDistance = float("-inf")
+
+    for capsuleState in currentCapsules:
+        capsuleDistance = min(capsuleDistance,manhattanDistance(pacmanPos,capsuleState))
+
+    ghostDistance = 1.0/ (1.0 + (ghostDistance/(len(currentGhostStates))))
+    capsuleDistance = 1.0/(1.0 + (len(currentCapsules)))
+    scaredGhost = 1.0/(1.0 + scaredGhost)
+
+    return currentScore + foodLeft + ghostDistance + capsuleDistance
 
 
 def GetFoodPositions(state):
