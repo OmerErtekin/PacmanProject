@@ -233,9 +233,16 @@ def betterEvaluationFunction(currentGameState):
     for ghostState in currentGhostStates:
         ghostPos = ghostState.getPosition()
         if pacmanPos == ghostPos:
-            return float("-inf")
+            #if there is an ai and we can eat it, go for it, if there is an ghost that you can't eat, escape if you can
+            if ghostState.scaredTimer <= 0:
+                return float("-inf") 
+            else:
+                return float("inf")
         else:
-            ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
+            if ghostState.scaredTimer <= 0:
+                ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
+            else:
+                ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
 
         if ghostState.scaredTimer != 0:
             scaredGhost += 1
