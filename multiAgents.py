@@ -18,6 +18,7 @@ import random, util
 
 from game import Agent
 
+
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -73,9 +74,6 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         return successorGameState.getScore()
-
-
-        
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -166,7 +164,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 
     def getAction(self, gameState):
-        return self.ExpectimaxValue(gameState,0,0)
+        move = self.ExpectimaxValue(gameState,0,0)
+        return move
         
 
     def MaxValue(self,currentGameState,agentIndex,nodeDepth):
@@ -205,12 +204,10 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         for legalAction in currentGameState.getLegalActions(agentIndex):
             if legalAction == Directions.STOP:
                 continue
-        
-        successor = currentGameState.generateSuccessor(agentIndex, legalAction)
-        
-        currentValue = self.ExpectimaxValue(successor,agentIndex+1,nodeDepth)
 
-        expectedValue += currentValue * probabilty
+            successor = currentGameState.generateSuccessor(agentIndex, legalAction)            
+            currentValue = self.ExpectimaxValue(successor,agentIndex+1,nodeDepth)
+            expectedValue += currentValue * probabilty
 
         return expectedValue
 
@@ -218,19 +215,25 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 def betterEvaluationFunction(currentGameState):
 
     pacmanPos = currentGameState.getPacmanPosition()
-    currentFoodCount = currentGameState.getNumFood()
     currentGhostStates =  currentGameState.getGhostStates()
     currentCapsules = currentGameState.getCapsules()
     currentScore = currentGameState.getScore()
 
-    foodLeft = 1.0/(currentFoodCount + 1.0)
+    foodList = GetFoodPositions(currentGameState.getFood())
+    distances = GetFoodDistances(currentGameState.getPacmanPosition(),foodList)
+
+    nearFoodPoint = 0
+    if len(distances) > 0:
+        nearFoodPoint = 0.5 / distances[0]['Distance']
+
+        
     ghostDistance = float("-inf")
     scaredGhost = 0
 
     for ghostState in currentGhostStates:
         ghostPos = ghostState.getPosition()
         if pacmanPos == ghostPos:
-            return ghostDistance
+            return float("-inf")
         else:
             ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
 
@@ -243,10 +246,10 @@ def betterEvaluationFunction(currentGameState):
         capsuleDistance = min(capsuleDistance,manhattanDistance(pacmanPos,capsuleState))
 
     ghostDistance = 1.0/ (1.0 + (ghostDistance/(len(currentGhostStates))))
-    capsuleDistance = 1.0/(1.0 + (len(currentCapsules)))
+    capsuleDistance = 2.0/(1.0 + (len(currentCapsules)))
     scaredGhost = 1.0/(1.0 + scaredGhost)
 
-    return currentScore + foodLeft + ghostDistance + capsuleDistance
+    return currentScore + nearFoodPoint + ghostDistance + capsuleDistance
 
 
 def GetFoodPositions(state):
