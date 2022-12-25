@@ -220,12 +220,12 @@ def betterEvaluationFunction(currentGameState):
     currentScore = currentGameState.getScore()
 
     foodList = GetFoodPositions(currentGameState.getFood())
-    distances = GetFoodDistances(currentGameState.getPacmanPosition(),foodList)
+    foodDistances = GetFoodDistances(currentGameState.getPacmanPosition(),foodList)
 
     nearFoodPoint = 0
 
-    if len(distances) > 0:
-        nearFoodPoint = 0.5 / distances[0]['Distance']
+    if len(foodDistances) > 0:
+        nearFoodPoint = 0.5 / foodDistances[0]['Distance']
         
     ghostDistance = float("-inf")
     scaredGhost = 0
@@ -242,19 +242,21 @@ def betterEvaluationFunction(currentGameState):
             if ghostState.scaredTimer <= 0:
                 ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
             else:
-                ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos)) * 2
+                ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
 
         if ghostState.scaredTimer != 0:
             scaredGhost += 1
     
     capsuleDistance = float("-inf")
-
+  #  print("-----")
+   # print(currentCapsules)
     for capsuleState in currentCapsules:
         capsuleDistance = min(capsuleDistance,manhattanDistance(pacmanPos,capsuleState))
+       
 
-    ghostDistance = 1.0/ (1.0 + (ghostDistance/(len(currentGhostStates))))
-    capsuleDistance = 2.0/(1.0 + (len(currentCapsules)))
-    scaredGhost = 1.0/(1.0 + scaredGhost)
+    ghostDistance = 2 / (1.0 + (ghostDistance/(len(currentGhostStates))))
+    capsuleDistance = 2 / (1.0 + (len(currentCapsules)))
+    scaredGhost = 1 / (1.0 + scaredGhost)
 
     return currentScore + nearFoodPoint + ghostDistance + capsuleDistance
 
@@ -276,8 +278,6 @@ def GetFoodDistances(pacmanPos,foodPositions):
     #example output : [ {'Distance': 2, 'FoodPos': (3, 1)}, {'Distance': 4, 'FoodPos': (1, 5)}, {'Distance': 4, 'FoodPos': (3, 3)}, {'Distance': 6, 'FoodPos': (1, 7)}, 
     # {'Distance': 6, 'FoodPos': (2, 6)}, {'Distance': 6, 'FoodPos': (3, 5)}, {'Distance': 8, 'FoodPos': (2, 8)}, {'Distance': 8, 'FoodPos': (3, 7)} ]
     return distanceList
-
-
     
 # Abbreviation
 better = betterEvaluationFunction
