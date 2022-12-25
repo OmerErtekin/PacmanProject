@@ -223,9 +223,9 @@ def betterEvaluationFunction(currentGameState):
     distances = GetFoodDistances(currentGameState.getPacmanPosition(),foodList)
 
     nearFoodPoint = 0
+
     if len(distances) > 0:
         nearFoodPoint = 0.5 / distances[0]['Distance']
-
         
     ghostDistance = float("-inf")
     scaredGhost = 0
@@ -242,7 +242,7 @@ def betterEvaluationFunction(currentGameState):
             if ghostState.scaredTimer <= 0:
                 ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
             else:
-                ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
+                ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos)) * 2
 
         if ghostState.scaredTimer != 0:
             scaredGhost += 1
@@ -278,7 +278,6 @@ def GetFoodDistances(pacmanPos,foodPositions):
     return distanceList
 
 
-        
-
+    
 # Abbreviation
 better = betterEvaluationFunction
