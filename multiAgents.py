@@ -243,6 +243,7 @@ def betterEvaluationFunction(currentGameState):
                 ghostDistance = min(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
             else:
                 ghostDistance = max(ghostDistance,manhattanDistance(pacmanPos,ghostPos))
+                break
 
         if ghostState.scaredTimer != 0:
             scaredGhost += 1
